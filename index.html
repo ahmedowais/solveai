@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SolveAI</title>
+  <title>SolveAI Math</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/mathjs@12.4.2/lib/browser/math.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/all.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/algebrite@1.4.0/dist/algebrite.bundle-for-browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     :root {
@@ -316,7 +318,7 @@
     <div class="wrap nav-inner">
       <div class="brand">
         <div class="logo">S</div>
-        <div>Solve<span style="color:var(--primary)">AI</span></div>
+        <div>Solve<span style="color:var(--primary)">AI Math</span></div>
       </div>
       <div class="nav-actions">
         <button class="btn btn-secondary" onclick="document.getElementById('settings').scrollIntoView({behavior:'smooth'})">Settings</button>
@@ -327,21 +329,21 @@
 
   <div class="wrap hero">
     <div>
-      <div class="pill"><span class="dot"></span> Paste your question. Get an answer fast.</div>
-      <h1>Get homework help that feels <span class="accent">quick</span>, clear, and actually useful.</h1>
-      <p class="sub">SolveAI answers basic math instantly on its own, gives smart summaries for factual questions, and can become a full AI answer tool when you add your own API key in the settings box below. Everything is in one file so it works well on GitHub Pages.</p>
+      <div class="pill"><span class="dot"></span> Math-first solver + image upload + optional AI</div>
+      <h1>Get math help that feels <span class="accent">quick</span>, clear, and actually useful.</h1>
+      <p class="sub">SolveAI Math is built to focus hard on math questions first: calculations, equations, algebra, functions, accounting-style number questions, and long word problems. It can also handle image uploads, and when you add your own API key it becomes much stronger for advanced math and photo-based questions.</p>
       <div class="hero-points">
-        <div class="hero-point"><strong>Math that works now</strong>Calculations and many expressions answer instantly in-browser.</div>
-        <div class="hero-point"><strong>Better explanations</strong>Outputs are organized into answer, steps, and final takeaway.</div>
-        <div class="hero-point"><strong>Upgrade to real AI</strong>Add your own API key later for stronger general answers.</div>
+        <div class="hero-point"><strong>Math-first solver</strong>Built to focus on equations, calculations, word problems, and finance-style math.</div>
+        <div class="hero-point"><strong>Upload question images</strong>Add a screenshot or photo of your worksheet and preview it instantly.</div>
+        <div class="hero-point"><strong>Better with AI key</strong>Advanced math and image-based solving get much stronger when you connect your own API key.</div>
       </div>
     </div>
     <div class="glass hero-card">
       <div class="stat-grid">
-        <div class="stat"><span>Works immediately for</span><strong>Math</strong></div>
-        <div class="stat"><span>Best mode with API</span><strong>All subjects</strong></div>
+        <div class="stat"><span>Best at</span><strong>Math</strong></div>
+        <div class="stat"><span>Supports</span><strong>Images</strong></div>
         <div class="stat"><span>File setup</span><strong>1 file</strong></div>
-        <div class="stat"><span>Speed</span><strong>Fast</strong></div>
+        <div class="stat"><span>Mode</span><strong>Math-first</strong></div>
       </div>
     </div>
   </div>
@@ -352,29 +354,38 @@
       <div class="toolbar" id="modeBar">
         <button class="chip active" data-mode="auto">Auto</button>
         <button class="chip" data-mode="math">Math</button>
-        <button class="chip" data-mode="explain">Explain</button>
+        <button class="chip" data-mode="wordmath">Word Math</button>
+        <button class="chip" data-mode="accounting">Accounting</button>
         <button class="chip" data-mode="summary">Summary</button>
       </div>
-      <textarea id="question" placeholder="Paste your homework question here...&#10;&#10;Examples:&#10;2(3x + 4) = 20&#10;What is photosynthesis?&#10;Summarize the causes of World War 1"></textarea>
+      <textarea id="question" placeholder="Paste your math question here...&#10;&#10;Examples:&#10;2(3x + 4) = 20&#10;A company buys inventory for $4,000 and sells it for $5,500. What is gross profit?&#10;A rectangle has length x+3 and width x-1. Find the area.&#10;If revenue is $90,000 and expenses are $63,000, what is net income?"></textarea>
+      <div style="margin-top:12px;">
+        <label class="label">Upload image of question</label>
+        <input id="imageInput" type="file" accept="image/*" />
+        <div class="small" style="margin-top:8px;">Images preview instantly. Photo solving works best when you also add your API key below.</div>
+        <div id="imagePreviewWrap" style="display:none;margin-top:12px;">
+          <img id="imagePreview" alt="Uploaded question preview" style="max-width:100%;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.03);" />
+        </div>
+      </div>
       <div class="actions">
         <button class="btn btn-primary" id="answerBtn">Get Answer</button>
         <button class="btn btn-secondary" id="clearBtn">Clear</button>
         <button class="btn btn-secondary" id="copyBtn">Copy Answer</button>
       </div>
-      <div class="helper">Tip: this version can solve many calculations instantly. For stronger answers in English, science, history, and other subjects, add your own model API key in settings below.</div>
+      <div class="helper">Tip: this version is optimized for math first. It tries built-in solving for calculations, equations, and some algebraic expressions. For advanced word problems, accounting cases, and uploaded images, add your own API key in settings below.</div>
     </div>
 
     <div class="glass side-box">
       <label class="label">Quick test prompts</label>
       <div class="quick-list">
         <button class="quick-btn" data-fill="7 * (12 - 3) + 18 / 2">Calculate: 7 * (12 - 3) + 18 / 2</button>
-        <button class="quick-btn" data-fill="What is the main function of mitochondria?">Science: What is the main function of mitochondria?</button>
-        <button class="quick-btn" data-fill="Summarize the causes of World War 1 in simple words.">History: Summarize the causes of World War 1</button>
-        <button class="quick-btn" data-fill="Explain slope-intercept form like a student.">Math concept: Explain slope-intercept form</button>
+        <button class="quick-btn" data-fill="2(3x + 4) = 20">Algebra: Solve 2(3x + 4) = 20</button>
+        <button class="quick-btn" data-fill="A company buys inventory for $4,000 and sells it for $5,500. What is gross profit?">Accounting: gross profit word problem</button>
+        <button class="quick-btn" data-fill="A rectangle has length x+3 and width x-1. Find an expression for the area.">Word math: rectangle area expression</button>
       </div>
       <div class="steps">
-        <div class="step"><strong>Fastest right now:</strong> math expressions, calculations, and simple concept formatting.</div>
-        <div class="step"><strong>Better general answers:</strong> add your own API key in settings and the site will use it in your browser.</div>
+        <div class="step"><strong>Fastest right now:</strong> calculations, equations, algebra expressions, and finance-style number questions.</div>
+        <div class="step"><strong>Better with API:</strong> long word problems, accounting scenarios, and uploaded image questions.</div>
         <div class="step"><strong>Important:</strong> a static GitHub site cannot securely hide an API key for everyone. For a real paid product, use a backend later.</div>
       </div>
     </div>
@@ -384,15 +395,15 @@
     <div class="glass output-box">
       <div id="status" class="status warn">Ready</div>
       <div id="output" class="output">
-        <strong>Welcome to SolveAI.</strong><br><br>
-        Paste a question and click <strong>Get Answer</strong>.<br><br>
-        This version already handles many calculations by itself. For general subjects, it can also use an API key you add in settings below.
+        <strong>Welcome to SolveAI Math.</strong><br><br>
+        Paste a math question and click <strong>Get Answer</strong>.<br><br>
+        This version is tuned for math first and can also preview uploaded question images. For stronger image solving and advanced word-problem reasoning, connect your own API key in settings below.
       </div>
     </div>
 
     <div class="glass settings-box" id="settings">
       <label class="label">Optional AI settings</label>
-      <div class="small" style="margin-bottom:10px;">This is optional. Without an API key, the site still works for many math questions and basic explanation formats. With an API key, it can answer a much wider range of questions.</div>
+      <div class="small" style="margin-bottom:10px;">This is optional. Without an API key, the site still works for many calculations, equations, and some finance-style math questions. With an API key, it becomes much better at long word problems, accounting cases, and uploaded images.</div>
       <label class="label" style="margin-top:10px;">API key</label>
       <input id="apiKey" type="password" placeholder="Paste your API key here (saved only in this browser)" />
       <label class="label" style="margin-top:12px;">API URL</label>
@@ -403,12 +414,12 @@
         <button class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
         <button class="btn btn-secondary" id="clearSettingsBtn">Clear Settings</button>
       </div>
-      <div class="small" style="margin-top:10px;">Saved settings stay in local storage on this device. Do not put a secret key into a public site you share widely unless you understand the risk. For a real business, use a server.</div>
+      <div class="small" style="margin-top:10px;">Saved settings stay in local storage on this device. Do not put a secret key into a public site you share widely unless you understand the risk. For a real business, use a server. Image questions will use your uploaded file only inside your own browser session.</div>
     </div>
   </div>
 
   <div class="wrap foot">
-    SolveAI is for learning support. It is not always perfect, so users should double-check important answers.
+    SolveAI Math is built for learning support and math-heavy homework help. Users should still double-check important answers.
   </div>
 
   <script>
@@ -417,6 +428,7 @@
     const output = $('output');
     const statusEl = $('status');
     let currentMode = 'auto';
+    window.solveAiImageData = null;
 
     function setStatus(text, type = 'warn') {
       statusEl.textContent = text;
@@ -428,7 +440,7 @@
     }
 
     function escapeHtml(str) {
-      return str.replace(/[&<>"]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+      return str.replace(/[&<>\"]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
     }
 
     function loadSettings() {
@@ -454,71 +466,124 @@
 
     function looksLikeMath(text) {
       const hasMathOps = /[\d\)\(\+\-\*\/\^%=]/.test(text);
-      const hasWords = /(solve|calculate|simplify|evaluate|find x|equation|expression|factor)/i.test(text);
+      const hasWords = /(solve|calculate|simplify|evaluate|find x|equation|expression|factor|math|profit|loss|gross|net income|revenue|expense|interest|discount|balance|inventory|cost|ratio|area|perimeter|slope|function)/i.test(text);
       return hasMathOps || hasWords;
+    }
+
+    function looksLikeAccounting(text) {
+      return /(accounting|gross profit|net income|revenue|expense|inventory|cost of goods sold|cogs|interest|discount|depreciation|amortization|journal entry|balance sheet|income statement|accounts receivable|accounts payable|markup|margin)/i.test(text);
     }
 
     function trySolveMath(raw) {
       const text = raw.trim();
-      const clean = text
-        .replace(/÷/g, '/')
-        .replace(/×/g, '*')
-        .replace(/−/g, '-')
-        .replace(/\s+/g, ' ');
-
+      const clean = text.replace(/÷/g, '/').replace(/×/g, '*').replace(/−/g, '-').replace(/\s+/g, ' ');
       try {
-        if (clean.includes('=') && /x/i.test(clean)) {
-          const parts = clean.split('=');
-          if (parts.length === 2) {
-            const expr = `solve(${parts[0]} - (${parts[1]}), x)`;
-            const solved = math.evaluate(expr);
-            const answer = Array.isArray(solved) ? solved.join(', ') : JSON.stringify(solved);
-            return {
-              ok: true,
-              html: `
-                <h3>Answer</h3>
-                <p><strong>x = ${escapeHtml(String(answer))}</strong></p>
-                <h3>Steps</h3>
-                <ol>
-                  <li>Recognize this as an equation with <code>x</code>.</li>
-                  <li>Move everything to one side and solve for <code>x</code>.</li>
-                  <li>Check the result by substituting it back into the original equation.</li>
-                </ol>
-                <h3>Final</h3>
-                <p>The solution is <strong>x = ${escapeHtml(String(answer))}</strong>.</p>
-              `
-            };
-          }
+        if (/^\s*[-+*/().\d\s%^]+\s*$/.test(clean)) {
+          const result = math.evaluate(clean);
+          return {
+            ok: true,
+            html: `
+              <h3>Answer</h3>
+              <p><strong>${escapeHtml(String(result))}</strong></p>
+              <h3>Steps</h3>
+              <ol>
+                <li>Read the expression carefully.</li>
+                <li>Apply brackets, multiplication or division, then addition or subtraction.</li>
+                <li>Compute the final result.</li>
+              </ol>
+              <h3>Final</h3>
+              <p>The final answer is <strong>${escapeHtml(String(result))}</strong>.</p>
+            `
+          };
         }
 
-        const result = math.evaluate(clean);
-        return {
-          ok: true,
-          html: `
-            <h3>Answer</h3>
-            <p><strong>${escapeHtml(String(result))}</strong></p>
-            <h3>Steps</h3>
-            <ol>
-              <li>Read the expression carefully.</li>
-              <li>Apply brackets, multiplication/division, then addition/subtraction.</li>
-              <li>Compute the final result.</li>
-            </ol>
-            <h3>Final</h3>
-            <p>The final answer is <strong>${escapeHtml(String(result))}</strong>.</p>
-          `
-        };
-      } catch (err) {
-        return { ok: false };
+        if (clean.includes('=') && /[a-z]/i.test(clean)) {
+          try {
+            const parts = clean.split('=');
+            if (parts.length === 2) {
+              const solved = nerdamer.solveEquations(`${parts[0]}=(${parts[1]})`, 'x');
+              const answer = Array.isArray(solved) ? JSON.stringify(solved) : String(solved);
+              return {
+                ok: true,
+                html: `
+                  <h3>Answer</h3>
+                  <p><strong>${escapeHtml(answer)}</strong></p>
+                  <h3>Steps</h3>
+                  <ol>
+                    <li>Recognize this as an equation.</li>
+                    <li>Move all terms into a solvable form.</li>
+                    <li>Solve for the variable and simplify.</li>
+                  </ol>
+                  <h3>Final</h3>
+                  <p>The solution is <strong>${escapeHtml(answer)}</strong>.</p>
+                `
+              };
+            }
+          } catch {}
+        }
+      } catch {}
+      return { ok: false };
+    }
+
+    function solveWordMath(question) {
+      const q = question.toLowerCase();
+      const nums = (question.match(/-?\d+(?:,\d{3})*(?:\.\d+)?/g) || []).map(n => Number(n.replace(/,/g, '')));
+      if (!nums.length) return null;
+
+      if (/gross profit/.test(q) && nums.length >= 2) {
+        const answer = nums[1] - nums[0];
+        return `
+          <h3>Answer</h3>
+          <p><strong>Gross profit = ${answer.toLocaleString()}</strong></p>
+          <h3>Steps</h3>
+          <ol>
+            <li>Gross profit = Sales revenue - Cost of goods sold.</li>
+            <li>Substitute the numbers: ${nums[1].toLocaleString()} - ${nums[0].toLocaleString()}.</li>
+            <li>Compute the difference.</li>
+          </ol>
+          <h3>Final</h3>
+          <p>The gross profit is <strong>${answer.toLocaleString()}</strong>.</p>
+        `;
       }
+
+      if (/net income/.test(q) && /revenue/.test(q) && /expense/.test(q) && nums.length >= 2) {
+        const answer = nums[0] - nums[1];
+        return `
+          <h3>Answer</h3>
+          <p><strong>Net income = ${answer.toLocaleString()}</strong></p>
+          <h3>Steps</h3>
+          <ol>
+            <li>Net income = Revenue - Expenses.</li>
+            <li>Substitute the values: ${nums[0].toLocaleString()} - ${nums[1].toLocaleString()}.</li>
+            <li>Compute the result.</li>
+          </ol>
+          <h3>Final</h3>
+          <p>The net income is <strong>${answer.toLocaleString()}</strong>.</p>
+        `;
+      }
+
+      if (/interest/.test(q) && /rate/.test(q) && /time/.test(q) && nums.length >= 3) {
+        const answer = nums[0] * (nums[1] / 100) * nums[2];
+        return `
+          <h3>Answer</h3>
+          <p><strong>Simple interest = ${answer.toLocaleString()}</strong></p>
+          <h3>Steps</h3>
+          <ol>
+            <li>Use the formula I = P × r × t.</li>
+            <li>Convert the rate to a decimal: ${nums[1]}% = ${nums[1]/100}.</li>
+            <li>Multiply ${nums[0].toLocaleString()} × ${nums[1]/100} × ${nums[2]}.</li>
+          </ol>
+          <h3>Final</h3>
+          <p>The simple interest is <strong>${answer.toLocaleString()}</strong>.</p>
+        `;
+      }
+
+      return null;
     }
 
     async function tryWikipediaSummary(question) {
-      const q = question
-        .replace(/^(what is|who is|define|explain)\s+/i, '')
-        .replace(/[?.!]+$/g, '')
-        .trim();
+      const q = question.replace(/^(what is|who is|define|explain)\s+/i, '').replace(/[?.!]+$/g, '').trim();
       if (!q || q.split(' ').length > 7) return null;
-
       try {
         const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(q)}`;
         const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
@@ -543,14 +608,12 @@
         <p><strong>Your question:</strong> ${q}</p>
         <h3>How to answer it</h3>
         <ol>
-          <li>Identify the main topic or skill being tested.</li>
-          <li>Pull out the key terms, dates, formulas, or concepts.</li>
-          <li>Explain the answer in a clear order using simple wording.</li>
+          <li>Identify what is being asked for.</li>
+          <li>Find the values, formula, or rule that fits the problem.</li>
+          <li>Show the setup clearly, solve, and write the final answer.</li>
         </ol>
-        <h3>Student-style version</h3>
-        <p>This question is asking about the main idea and how it works. Start by defining the topic clearly, then explain the important parts in order, and finish with a short final answer.</p>
         <h3>Note</h3>
-        <p>For a more exact subject-specific answer, connect your own API key in settings.</p>
+        <p>For a more exact answer to long word problems, accounting cases, or uploaded images, connect your own API key in settings.</p>
       `;
     }
 
@@ -560,15 +623,22 @@
       const modelName = $('modelName').value.trim();
       if (!apiKey || !apiUrl || !modelName) return null;
 
-      const systemPrompt = `You are SolveAI, a helpful homework helper. Give accurate, concise, student-friendly answers. When useful, include: 1) direct answer, 2) short explanation, 3) final takeaway. Avoid fluff. If math is involved, show the reasoning clearly.`;
+      const imageData = window.solveAiImageData || null;
+      const systemPrompt = `You are SolveAI Math, a highly focused math-first homework helper. Prioritize math, algebra, calculus, statistics, finance math, accounting calculations, and long word problems. Always do the following when possible: 1) identify what is being asked, 2) show the formula or setup, 3) solve clearly step by step, 4) give the final answer in bold, 5) keep wording student-friendly. If the question is accounting-related, calculate carefully and explain the exact formula used. If an uploaded image is present, read the problem from the image and solve it. If something is unclear, make the most reasonable interpretation and say your assumption.`;
+
+      const userContent = [];
+      userContent.push({ type: 'text', text: question });
+      if (imageData) {
+        userContent.push({ type: 'image_url', image_url: { url: imageData } });
+      }
 
       const body = {
         model: modelName,
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: question }
+          { role: 'user', content: userContent }
         ],
-        temperature: 0.2
+        temperature: 0.1
       };
 
       const res = await fetch(apiUrl, {
@@ -605,11 +675,20 @@
       try {
         const mode = currentMode;
 
-        if (mode === 'math' || (mode === 'auto' && looksLikeMath(question))) {
+        if (mode === 'math' || (mode === 'auto' && looksLikeMath(question) && !looksLikeAccounting(question))) {
           const mathResult = trySolveMath(question);
           if (mathResult.ok) {
             setOutput(mathResult.html);
             setStatus('Answered with built-in math solver', 'good');
+            return;
+          }
+        }
+
+        if (mode === 'wordmath' || mode === 'accounting' || (mode === 'auto' && (looksLikeAccounting(question) || looksLikeMath(question)))) {
+          const wordMath = solveWordMath(question);
+          if (wordMath) {
+            setOutput(wordMath);
+            setStatus('Answered with built-in word-math logic', 'good');
             return;
           }
         }
@@ -627,7 +706,7 @@
           const ai = await answerWithApi(question);
           if (ai) {
             setOutput(ai);
-            setStatus('Answered with connected AI model', 'good');
+            setStatus(window.solveAiImageData ? 'Answered with AI + image input' : 'Answered with connected AI model', 'good');
             return;
           }
         } catch (err) {
@@ -658,9 +737,30 @@
       });
     });
 
+    $('imageInput').addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) {
+        window.solveAiImageData = null;
+        $('imagePreviewWrap').style.display = 'none';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result;
+        window.solveAiImageData = dataUrl;
+        $('imagePreview').src = dataUrl;
+        $('imagePreviewWrap').style.display = 'block';
+        setStatus('Image added', 'good');
+      };
+      reader.readAsDataURL(file);
+    });
+
     $('answerBtn').addEventListener('click', generateAnswer);
     $('clearBtn').addEventListener('click', () => {
       $('question').value = '';
+      $('imageInput').value = '';
+      window.solveAiImageData = null;
+      $('imagePreviewWrap').style.display = 'none';
       setStatus('Cleared', 'warn');
       setOutput('Paste a new question and click <strong>Get Answer</strong>.');
     });
