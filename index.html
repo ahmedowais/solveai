@@ -1,65 +1,681 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>StudyAI</title>
-<style>
-body {
-  font-family: Arial;
-  background: #0b1020;
-  color: white;
-  text-align: center;
-  padding: 40px;
-}
-textarea {
-  width: 80%;
-  height: 120px;
-  padding: 10px;
-  border-radius: 10px;
-}
-button {
-  padding: 10px 20px;
-  margin-top: 10px;
-  background: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 8px;
-}
-.box {
-  margin-top: 20px;
-  background: #111827;
-  padding: 20px;
-  border-radius: 10px;
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SolveAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mathjs@12.4.2/lib/browser/math.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a1020;
+      --panel: rgba(17, 24, 39, 0.82);
+      --panel-2: rgba(15, 23, 42, 0.9);
+      --line: rgba(148, 163, 184, 0.18);
+      --text: #eef2ff;
+      --muted: #a5b4fc;
+      --soft: #cbd5e1;
+      --primary: #60a5fa;
+      --primary-2: #22d3ee;
+      --good: #34d399;
+      --warn: #fbbf24;
+      --bad: #fb7185;
+      --shadow: 0 18px 50px rgba(0,0,0,.35);
+      --radius: 22px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(96,165,250,.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(34,211,238,.12), transparent 24%),
+        linear-gradient(180deg, #0a1020 0%, #0b1327 40%, #08101c 100%);
+      min-height: 100vh;
+    }
+    .wrap { width: min(1120px, calc(100% - 24px)); margin: 0 auto; }
+    .glass {
+      background: var(--panel);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+    }
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(14px);
+      background: rgba(10,16,32,.72);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 0;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+    .logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      color: #03111f;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      font-weight: 900;
+    }
+    .nav-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary {
+      color: #051321;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    }
+    .btn-secondary {
+      color: var(--text);
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--line);
+    }
+    .hero {
+      padding: 52px 0 20px;
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 20px;
+      align-items: center;
+    }
+    .pill {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 9px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(96,165,250,.24);
+      background: rgba(96,165,250,.08);
+      color: #bfdbfe;
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--good);
+      box-shadow: 0 0 0 8px rgba(52,211,153,.08);
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(40px, 7vw, 76px);
+      line-height: .95;
+      letter-spacing: -.05em;
+    }
+    .accent { color: var(--primary); }
+    .sub {
+      color: var(--soft);
+      line-height: 1.75;
+      font-size: 16px;
+      max-width: 690px;
+      margin: 0 0 18px;
+    }
+    .hero-points {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .hero-point {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color: var(--soft);
+      font-size: 13px;
+    }
+    .hero-point strong { display: block; color: var(--text); margin-bottom: 6px; }
+    .hero-card { padding: 18px; }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .stat {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      border-radius: 18px;
+      padding: 14px;
+    }
+    .stat span { display: block; color: var(--soft); font-size: 12px; margin-bottom: 6px; }
+    .stat strong { font-size: 28px; }
+    .section { padding: 22px 0; }
+    .solver {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 18px;
+      align-items: start;
+    }
+    .solver-box, .side-box, .output-box, .settings-box {
+      padding: 18px;
+    }
+    .label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      display: block;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .chip {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--soft);
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .chip.active {
+      background: rgba(96,165,250,.14);
+      color: var(--text);
+      border-color: rgba(96,165,250,.28);
+    }
+    textarea, input, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      border-radius: 16px;
+      padding: 14px 16px;
+      outline: none;
+    }
+    textarea {
+      min-height: 220px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .helper {
+      margin-top: 10px;
+      color: var(--soft);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    .quick-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .quick-btn {
+      text-align: left;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      border-radius: 16px;
+      padding: 12px 14px;
+      cursor: pointer;
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--line);
+    }
+    .status.good { color: #bbf7d0; background: rgba(52,211,153,.1); border-color: rgba(52,211,153,.18); }
+    .status.warn { color: #fde68a; background: rgba(251,191,36,.1); border-color: rgba(251,191,36,.2); }
+    .status.bad { color: #fecdd3; background: rgba(251,113,133,.1); border-color: rgba(251,113,133,.18); }
+    .output {
+      min-height: 420px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,.03);
+      padding: 18px;
+      line-height: 1.75;
+      color: var(--soft);
+      overflow-wrap: anywhere;
+    }
+    .output h1, .output h2, .output h3 { font-size: 20px; line-height: 1.2; margin-top: 0; color: var(--text); }
+    .output strong { color: var(--text); }
+    .output code {
+      background: rgba(255,255,255,.06);
+      padding: 2px 6px;
+      border-radius: 8px;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+    .foot {
+      padding: 26px 0 38px;
+      color: var(--soft);
+      font-size: 13px;
+    }
+    .small { font-size: 12px; color: var(--soft); line-height: 1.6; }
+    .steps {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .step {
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+    }
+    @media (max-width: 980px) {
+      .hero, .solver, .split { grid-template-columns: 1fr; }
+      .hero-points, .stat-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .hero-points, .stat-grid { grid-template-columns: 1fr; }
+      .wrap { width: min(100% - 18px, 1120px); }
+      h1 { font-size: 42px; }
+    }
+  </style>
 </head>
-
 <body>
+  <nav>
+    <div class="wrap nav-inner">
+      <div class="brand">
+        <div class="logo">S</div>
+        <div>Solve<span style="color:var(--primary)">AI</span></div>
+      </div>
+      <div class="nav-actions">
+        <button class="btn btn-secondary" onclick="document.getElementById('settings').scrollIntoView({behavior:'smooth'})">Settings</button>
+        <button class="btn btn-primary" onclick="document.getElementById('question').focus()">Try It</button>
+      </div>
+    </div>
+  </nav>
 
-<h1>StudyAI</h1>
-<p>Get homework help instantly.</p>
+  <div class="wrap hero">
+    <div>
+      <div class="pill"><span class="dot"></span> Paste your question. Get an answer fast.</div>
+      <h1>Get homework help that feels <span class="accent">quick</span>, clear, and actually useful.</h1>
+      <p class="sub">SolveAI answers basic math instantly on its own, gives smart summaries for factual questions, and can become a full AI answer tool when you add your own API key in the settings box below. Everything is in one file so it works well on GitHub Pages.</p>
+      <div class="hero-points">
+        <div class="hero-point"><strong>Math that works now</strong>Calculations and many expressions answer instantly in-browser.</div>
+        <div class="hero-point"><strong>Better explanations</strong>Outputs are organized into answer, steps, and final takeaway.</div>
+        <div class="hero-point"><strong>Upgrade to real AI</strong>Add your own API key later for stronger general answers.</div>
+      </div>
+    </div>
+    <div class="glass hero-card">
+      <div class="stat-grid">
+        <div class="stat"><span>Works immediately for</span><strong>Math</strong></div>
+        <div class="stat"><span>Best mode with API</span><strong>All subjects</strong></div>
+        <div class="stat"><span>File setup</span><strong>1 file</strong></div>
+        <div class="stat"><span>Speed</span><strong>Fast</strong></div>
+      </div>
+    </div>
+  </div>
 
-<textarea id="question" placeholder="Paste your question here..."></textarea><br>
-<button onclick="generate()">Get Answer</button>
+  <div class="wrap section solver">
+    <div class="glass solver-box">
+      <label class="label">Question</label>
+      <div class="toolbar" id="modeBar">
+        <button class="chip active" data-mode="auto">Auto</button>
+        <button class="chip" data-mode="math">Math</button>
+        <button class="chip" data-mode="explain">Explain</button>
+        <button class="chip" data-mode="summary">Summary</button>
+      </div>
+      <textarea id="question" placeholder="Paste your homework question here...&#10;&#10;Examples:&#10;2(3x + 4) = 20&#10;What is photosynthesis?&#10;Summarize the causes of World War 1"></textarea>
+      <div class="actions">
+        <button class="btn btn-primary" id="answerBtn">Get Answer</button>
+        <button class="btn btn-secondary" id="clearBtn">Clear</button>
+        <button class="btn btn-secondary" id="copyBtn">Copy Answer</button>
+      </div>
+      <div class="helper">Tip: this version can solve many calculations instantly. For stronger answers in English, science, history, and other subjects, add your own model API key in settings below.</div>
+    </div>
 
-<div class="box" id="answer"></div>
+    <div class="glass side-box">
+      <label class="label">Quick test prompts</label>
+      <div class="quick-list">
+        <button class="quick-btn" data-fill="7 * (12 - 3) + 18 / 2">Calculate: 7 * (12 - 3) + 18 / 2</button>
+        <button class="quick-btn" data-fill="What is the main function of mitochondria?">Science: What is the main function of mitochondria?</button>
+        <button class="quick-btn" data-fill="Summarize the causes of World War 1 in simple words.">History: Summarize the causes of World War 1</button>
+        <button class="quick-btn" data-fill="Explain slope-intercept form like a student.">Math concept: Explain slope-intercept form</button>
+      </div>
+      <div class="steps">
+        <div class="step"><strong>Fastest right now:</strong> math expressions, calculations, and simple concept formatting.</div>
+        <div class="step"><strong>Better general answers:</strong> add your own API key in settings and the site will use it in your browser.</div>
+        <div class="step"><strong>Important:</strong> a static GitHub site cannot securely hide an API key for everyone. For a real paid product, use a backend later.</div>
+      </div>
+    </div>
+  </div>
 
-<script>
-function generate() {
-  let q = document.getElementById("question").value;
+  <div class="wrap split">
+    <div class="glass output-box">
+      <div id="status" class="status warn">Ready</div>
+      <div id="output" class="output">
+        <strong>Welcome to SolveAI.</strong><br><br>
+        Paste a question and click <strong>Get Answer</strong>.<br><br>
+        This version already handles many calculations by itself. For general subjects, it can also use an API key you add in settings below.
+      </div>
+    </div>
 
-  if (!q) {
-    alert("Enter a question");
-    return;
-  }
+    <div class="glass settings-box" id="settings">
+      <label class="label">Optional AI settings</label>
+      <div class="small" style="margin-bottom:10px;">This is optional. Without an API key, the site still works for many math questions and basic explanation formats. With an API key, it can answer a much wider range of questions.</div>
+      <label class="label" style="margin-top:10px;">API key</label>
+      <input id="apiKey" type="password" placeholder="Paste your API key here (saved only in this browser)" />
+      <label class="label" style="margin-top:12px;">API URL</label>
+      <input id="apiUrl" value="https://api.openai.com/v1/chat/completions" />
+      <label class="label" style="margin-top:12px;">Model name</label>
+      <input id="modelName" value="gpt-4.1-mini" />
+      <div class="actions">
+        <button class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
+        <button class="btn btn-secondary" id="clearSettingsBtn">Clear Settings</button>
+      </div>
+      <div class="small" style="margin-top:10px;">Saved settings stay in local storage on this device. Do not put a secret key into a public site you share widely unless you understand the risk. For a real business, use a server.</div>
+    </div>
+  </div>
 
-  document.getElementById("answer").innerHTML =
-  "Step-by-step answer:<br><br>" +
-  "1. Understand the question<br>" +
-  "2. Break it down<br>" +
-  "3. Apply formulas or logic<br><br>" +
-  "Answer generated for: " + q;
-}
-</script>
+  <div class="wrap foot">
+    SolveAI is for learning support. It is not always perfect, so users should double-check important answers.
+  </div>
 
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const modeBar = $('modeBar');
+    const output = $('output');
+    const statusEl = $('status');
+    let currentMode = 'auto';
+
+    function setStatus(text, type = 'warn') {
+      statusEl.textContent = text;
+      statusEl.className = `status ${type}`;
+    }
+
+    function setOutput(html) {
+      output.innerHTML = html;
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+    }
+
+    function loadSettings() {
+      $('apiKey').value = localStorage.getItem('solveai_api_key') || '';
+      $('apiUrl').value = localStorage.getItem('solveai_api_url') || 'https://api.openai.com/v1/chat/completions';
+      $('modelName').value = localStorage.getItem('solveai_model_name') || 'gpt-4.1-mini';
+    }
+
+    function saveSettings() {
+      localStorage.setItem('solveai_api_key', $('apiKey').value.trim());
+      localStorage.setItem('solveai_api_url', $('apiUrl').value.trim());
+      localStorage.setItem('solveai_model_name', $('modelName').value.trim());
+      setStatus('Settings saved', 'good');
+    }
+
+    function clearSettings() {
+      localStorage.removeItem('solveai_api_key');
+      localStorage.removeItem('solveai_api_url');
+      localStorage.removeItem('solveai_model_name');
+      loadSettings();
+      setStatus('Settings cleared', 'warn');
+    }
+
+    function looksLikeMath(text) {
+      const hasMathOps = /[\d\)\(\+\-\*\/\^%=]/.test(text);
+      const hasWords = /(solve|calculate|simplify|evaluate|find x|equation|expression|factor)/i.test(text);
+      return hasMathOps || hasWords;
+    }
+
+    function trySolveMath(raw) {
+      const text = raw.trim();
+      const clean = text
+        .replace(/÷/g, '/')
+        .replace(/×/g, '*')
+        .replace(/−/g, '-')
+        .replace(/\s+/g, ' ');
+
+      try {
+        if (clean.includes('=') && /x/i.test(clean)) {
+          const parts = clean.split('=');
+          if (parts.length === 2) {
+            const expr = `solve(${parts[0]} - (${parts[1]}), x)`;
+            const solved = math.evaluate(expr);
+            const answer = Array.isArray(solved) ? solved.join(', ') : JSON.stringify(solved);
+            return {
+              ok: true,
+              html: `
+                <h3>Answer</h3>
+                <p><strong>x = ${escapeHtml(String(answer))}</strong></p>
+                <h3>Steps</h3>
+                <ol>
+                  <li>Recognize this as an equation with <code>x</code>.</li>
+                  <li>Move everything to one side and solve for <code>x</code>.</li>
+                  <li>Check the result by substituting it back into the original equation.</li>
+                </ol>
+                <h3>Final</h3>
+                <p>The solution is <strong>x = ${escapeHtml(String(answer))}</strong>.</p>
+              `
+            };
+          }
+        }
+
+        const result = math.evaluate(clean);
+        return {
+          ok: true,
+          html: `
+            <h3>Answer</h3>
+            <p><strong>${escapeHtml(String(result))}</strong></p>
+            <h3>Steps</h3>
+            <ol>
+              <li>Read the expression carefully.</li>
+              <li>Apply brackets, multiplication/division, then addition/subtraction.</li>
+              <li>Compute the final result.</li>
+            </ol>
+            <h3>Final</h3>
+            <p>The final answer is <strong>${escapeHtml(String(result))}</strong>.</p>
+          `
+        };
+      } catch (err) {
+        return { ok: false };
+      }
+    }
+
+    async function tryWikipediaSummary(question) {
+      const q = question
+        .replace(/^(what is|who is|define|explain)\s+/i, '')
+        .replace(/[?.!]+$/g, '')
+        .trim();
+      if (!q || q.split(' ').length > 7) return null;
+
+      try {
+        const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(q)}`;
+        const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+        if (!res.ok) return null;
+        const data = await res.json();
+        if (!data.extract) return null;
+        return `
+          <h3>Quick answer</h3>
+          <p>${escapeHtml(data.extract)}</p>
+          <h3>In simple words</h3>
+          <p>${escapeHtml(q)} is explained above in a short summary. For a deeper answer, add an API key in settings and try again.</p>
+        `;
+      } catch {
+        return null;
+      }
+    }
+
+    function simpleExplain(question) {
+      const q = escapeHtml(question.trim());
+      return `
+        <h3>Structured response</h3>
+        <p><strong>Your question:</strong> ${q}</p>
+        <h3>How to answer it</h3>
+        <ol>
+          <li>Identify the main topic or skill being tested.</li>
+          <li>Pull out the key terms, dates, formulas, or concepts.</li>
+          <li>Explain the answer in a clear order using simple wording.</li>
+        </ol>
+        <h3>Student-style version</h3>
+        <p>This question is asking about the main idea and how it works. Start by defining the topic clearly, then explain the important parts in order, and finish with a short final answer.</p>
+        <h3>Note</h3>
+        <p>For a more exact subject-specific answer, connect your own API key in settings.</p>
+      `;
+    }
+
+    async function answerWithApi(question) {
+      const apiKey = $('apiKey').value.trim();
+      const apiUrl = $('apiUrl').value.trim();
+      const modelName = $('modelName').value.trim();
+      if (!apiKey || !apiUrl || !modelName) return null;
+
+      const systemPrompt = `You are SolveAI, a helpful homework helper. Give accurate, concise, student-friendly answers. When useful, include: 1) direct answer, 2) short explanation, 3) final takeaway. Avoid fluff. If math is involved, show the reasoning clearly.`;
+
+      const body = {
+        model: modelName,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: question }
+        ],
+        temperature: 0.2
+      };
+
+      const res = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || 'API request failed');
+      }
+
+      const data = await res.json();
+      const content = data.choices?.[0]?.message?.content;
+      if (!content) throw new Error('No answer returned');
+      return marked.parse(content);
+    }
+
+    async function generateAnswer() {
+      const question = $('question').value.trim();
+      if (!question) {
+        setStatus('Enter a question first', 'bad');
+        setOutput('<strong>Please paste a question first.</strong>');
+        return;
+      }
+
+      setStatus('Working...', 'warn');
+      setOutput('Generating answer...');
+
+      try {
+        const mode = currentMode;
+
+        if (mode === 'math' || (mode === 'auto' && looksLikeMath(question))) {
+          const mathResult = trySolveMath(question);
+          if (mathResult.ok) {
+            setOutput(mathResult.html);
+            setStatus('Answered with built-in math solver', 'good');
+            return;
+          }
+        }
+
+        if (mode === 'summary' || mode === 'auto') {
+          const wiki = await tryWikipediaSummary(question);
+          if (wiki) {
+            setOutput(wiki);
+            setStatus('Answered with quick fact summary', 'good');
+            return;
+          }
+        }
+
+        try {
+          const ai = await answerWithApi(question);
+          if (ai) {
+            setOutput(ai);
+            setStatus('Answered with connected AI model', 'good');
+            return;
+          }
+        } catch (err) {
+          console.error(err);
+        }
+
+        setOutput(simpleExplain(question));
+        setStatus('Fallback explanation used', 'warn');
+      } catch (err) {
+        console.error(err);
+        setStatus('Something went wrong', 'bad');
+        setOutput(`<strong>Error:</strong> ${escapeHtml(String(err.message || err))}`);
+      }
+    }
+
+    modeBar.querySelectorAll('.chip').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        modeBar.querySelectorAll('.chip').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentMode = btn.dataset.mode;
+      });
+    });
+
+    document.querySelectorAll('[data-fill]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        $('question').value = btn.dataset.fill;
+        $('question').focus();
+      });
+    });
+
+    $('answerBtn').addEventListener('click', generateAnswer);
+    $('clearBtn').addEventListener('click', () => {
+      $('question').value = '';
+      setStatus('Cleared', 'warn');
+      setOutput('Paste a new question and click <strong>Get Answer</strong>.');
+    });
+    $('copyBtn').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(output.innerText);
+        setStatus('Answer copied', 'good');
+      } catch {
+        setStatus('Could not copy', 'bad');
+      }
+    });
+    $('saveSettingsBtn').addEventListener('click', saveSettings);
+    $('clearSettingsBtn').addEventListener('click', clearSettings);
+
+    loadSettings();
+  </script>
 </body>
 </html>
