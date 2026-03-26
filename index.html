@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>StudyAI</title>
+<style>
+body {
+  font-family: Arial;
+  background: #0b1020;
+  color: white;
+  text-align: center;
+  padding: 40px;
+}
+textarea {
+  width: 80%;
+  height: 120px;
+  padding: 10px;
+  border-radius: 10px;
+}
+button {
+  padding: 10px 20px;
+  margin-top: 10px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+}
+.box {
+  margin-top: 20px;
+  background: #111827;
+  padding: 20px;
+  border-radius: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>StudyAI</h1>
+<p>Get homework help instantly.</p>
+
+<textarea id="question" placeholder="Paste your question here..."></textarea><br>
+<button onclick="generate()">Get Answer</button>
+
+<div class="box" id="answer"></div>
+
+<script>
+function generate() {
+  let q = document.getElementById("question").value;
+
+  if (!q) {
+    alert("Enter a question");
+    return;
+  }
+
+  document.getElementById("answer").innerHTML =
+  "Step-by-step answer:<br><br>" +
+  "1. Understand the question<br>" +
+  "2. Break it down<br>" +
+  "3. Apply formulas or logic<br><br>" +
+  "Answer generated for: " + q;
+}
+</script>
+
+</body>
+</html>
